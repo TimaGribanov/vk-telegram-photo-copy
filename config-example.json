@@ -1,0 +1,17 @@
+{
+    "vk": {
+        "token": "",
+        "userId": "",
+        "albumId": "saved"
+    },
+    "telegram": {
+        "token": "",
+        "chatId": ""
+    },
+    "db": {
+        "host": "",
+        "schema": "",
+        "user": "",
+        "pwd": ""
+    }
+}
