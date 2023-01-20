@@ -26,40 +26,67 @@ const goThruArray = async (obj) => {
         let finalUrl
 
         //Get the URL based on the biggest format type
-        for (let i = 0; i < sizes.length; i++) {
-            if (sizes[i].type === 'z')
-                finalUrl = [e.date, sizes[i].url]
-        }
-
-        //If type z is not present use the sizes comparison
-        if (!finalUrl) {
-            for (let i = 0; i < sizes.length; i++) {
-                if (i > 0) {
-                    if (sizes[i].height > sizes[i - 1].height) {
-                        finalUrl = [e.date, sizes[i].url]
-                    } else {
-                        if (sizes[i].width > sizes[i - 1].width) {
-                            finalUrl = [e.date, sizes[i].url]
-                        } else {
-                            finalUrl = finalUrl
-                        }
-                    }
-                } else {
-                    finalUrl = [e.date, sizes[0].url]
+        for (let i = sizes.length - 1; i > 0; i--) {
+            if (!finalUrl) {
+                if (sizes[i].type === 'w') {
+                    finalUrl = [e.date, sizes[i].url]
+                    break
                 }
+
+                if (sizes[i].type === 'z') {
+                    finalUrl = [e.date, sizes[i].url]
+                    break
+                }
+
+                if (sizes[i].type === 'y') {
+                    finalUrl = [e.date, sizes[i].url]
+                    break
+                }
+
+                if (sizes[i].type === 'x') {
+                    finalUrl = [e.date, sizes[i].url]
+                    break
+                }
+
+                if (sizes[i].type === 'm') {
+                    finalUrl = [e.date, sizes[i].url]
+                    break
+                }
+
+                if (sizes[i].type === 's') {
+                    finalUrl = [e.date, sizes[i].url]
+                    break
+                }
+            } else {
+                break
             }
         }
 
-        resultArr.push(finalUrl)
-    })
+        //If any of the types not present check by size comparison
+        if (!finalUrl) {
+        for (let i = sizes.length - 1; i = 0; i--) {
+            if (sizes[i].height > sizes[i - 1].height) {
+                finalUrl = [e.date, sizes[i].url]
+            } else {
+                if (sizes[i].width > sizes[i - 1].width) {
+                    finalUrl = [e.date, sizes[i].url]
+                } else {
+                    finalUrl = finalUrl
+                }
+            }
+        }
+    }
 
-    return Object.values(resultArr)
+    resultArr.push(finalUrl)
+})
+
+return Object.values(resultArr)
 }
 
 //Sync based on DB
 const sync = async () => {
     //Function for promise delay
-    function delay(milliseconds){
+    function delay(milliseconds) {
         return new Promise(resolve => {
             setTimeout(resolve, milliseconds)
         })
@@ -92,13 +119,13 @@ const sync = async () => {
             }
             else
                 logger.info(`sync: Status is ${status} – SUCCESS.`)
-                const query = `UPDATE Images SET Status = 1 WHERE URL = "${url}"`
-                logger.info(`sync: Marking this entry with 1 in DB`)
-                logger.info(`sync: ${query}`)
-                dbReq(query)
+            const query = `UPDATE Images SET Status = 1 WHERE URL = "${url}"`
+            logger.info(`sync: Marking this entry with 1 in DB`)
+            logger.info(`sync: ${query}`)
+            dbReq(query)
         } while (status != 200)
     }
-} 
+}
 
 //Function to sync for the fisrt time
 const firstTime = async (size) => {
@@ -113,7 +140,7 @@ const firstTime = async (size) => {
         const offset = step * i
 
         logger.info(`firstTime: Getting objArray with offset ${offset}`)
-        objArray =  await vkApiReq(offset)
+        objArray = await vkApiReq(offset)
 
         logger.info('firstTime: Pushing current objArray to photosArrayObj')
         photosArrayObj.push(await goThruArray(objArray.items))
@@ -125,10 +152,10 @@ const firstTime = async (size) => {
             photosArray.push(e)
         })
     })
-    
+
     logger.info('firstTime: Insert photosArray into DB with dbInsert()')
     await dbInsert(photosArray)
-    
+
     logger.info('firstTime: Start syncing with sync()')
     await sync()
 }
